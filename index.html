@@ -41,17 +41,16 @@
         /* Stile per le immagini */
         .img-container img {
             width: 200px;
-            height: 200px;
-            object-fit: cover;
+            height: auto;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: transform 0.7s ease;
         }
 
         /* Ingrandimento al passaggio del mouse */
         .img-container:hover img {
-            transform: scale(1.1);
+            transform: scale(1.5);
         }
 
         /* Stile per il pulsante di eliminazione */
@@ -69,6 +68,11 @@
             font-size: 14px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+        /* Stile per il pulsante di eliminazione quando si passa sopra il contenitore */
+.img-container:hover button {
+    background: rgba(255, 0, 0, 0.01); /* Rosso con opacità 0.1 */
+    color: rgba(255,255,255,0.1);
+}
     </style>
 </head>
 <body>
@@ -80,8 +84,7 @@
     </div>
 
     <script>
-        // Sostituisci con la tua chiave API e l'ID del motore di ricerca
-       
+        // Recupera i parametri dall'URL
 const urlParams = new URLSearchParams(window.location.search);
 const apiKey = urlParams.get('api') || '';
 const searchEngineId = urlParams.get('eng') || '';
@@ -90,10 +93,8 @@ const searchEngineId = urlParams.get('eng') || '';
 
         // Event listener per rilevare la digitazione di ]
         textarea.addEventListener('keyup', function(event) {
-            if (event.key === ']') { alert("fetching");
+            if (event.key === ']') {
                 processText();
-                         
-
             }
         });
 
@@ -115,7 +116,6 @@ const searchEngineId = urlParams.get('eng') || '';
 
         // Funzione per ottenere le immagini dall'API di Google
         function fetchImages(query) {
-          
             const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&searchType=image&q=${encodeURIComponent(query)}&num=10`;
             fetch(url)
             .then(response => response.json())
