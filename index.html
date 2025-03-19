@@ -98,7 +98,12 @@ const searchEngineId = urlParams.get('eng') || '';
                 processText();
             }
         });
-
+textarea.addEventListener('input', function(event) {
+    const text = textarea.value;
+    if (text.slice(-1) === ']') {
+        processText();
+    }
+});
         // Funzione per processare il testo e trovare la stringa tra [ e ]
         function processText() {
             const text = textarea.value;
