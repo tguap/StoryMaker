@@ -1,0 +1,162 @@
+
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storia con Immagini - Google API</title>
+    <style>
+        /* Stile per la textarea */
+        textarea {
+            margin: 20px;
+            padding: 15px;
+            font-size: 18px;
+            font-family: 'Arial', sans-serif;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            resize: none;
+        }
+
+        /* Stile per il carosello */
+        #carousel {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f0f0, #d9d9d9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Stile per i contenitori delle immagini */
+        .img-container {
+            position: relative;
+            flex: 0 0 auto;
+            transition: transform 0.3s ease;
+        }
+
+        /* Stile per le immagini */
+        .img-container img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        /* Ingrandimento al passaggio del mouse */
+        .img-container:hover img {
+            transform: scale(1.1);
+        }
+
+        /* Stile per il pulsante di eliminazione */
+        .img-container button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <textarea id="story" rows="10" placeholder="Scrivi la tua storia qui..."></textarea>
+        <div id="carousel">
+            <!-- Le immagini verranno inserite qui -->
+        </div>
+    </div>
+
+    <script>
+        // Sostituisci con la tua chiave API e l'ID del motore di ricerca
+       
+const urlParams = new URLSearchParams(window.location.search);
+const apiKey = urlParams.get('api') || '';
+const searchEngineId = urlParams.get('eng') || '';
+        const textarea = document.getElementById('story');
+        const carousel = document.getElementById('carousel');
+
+        // Event listener per rilevare la digitazione di ]
+        textarea.addEventListener('keyup', function(event) {
+            if (event.key === ']') { alert("fetching");
+                processText();
+                         
+
+            }
+        });
+
+        // Funzione per processare il testo e trovare la stringa tra [ e ]
+        function processText() {
+            const text = textarea.value;
+            const lastClose = text.lastIndexOf(']');
+            if (lastClose === -1) return;
+
+            const textBefore = text.substring(0, lastClose);
+            const lastOpen = textBefore.lastIndexOf('[');
+            if (lastOpen === -1) return;
+
+            const query = textBefore.substring(lastOpen + 1).trim();
+            if (query) {
+                fetchImages(query);
+            }
+        }
+
+        // Funzione per ottenere le immagini dall'API di Google
+        function fetchImages(query) {
+          
+            const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&searchType=image&q=${encodeURIComponent(query)}&num=10`;
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const imageUrls = data.items.map(item => item.link);
+                if (imageUrls.length > 0) {
+                    const randomUrl = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+                    addImageToCarousel(randomUrl, imageUrls);
+                }
+            })
+            .catch(error => console.error('Errore durante la fetch:', error));
+        }
+
+        // Funzione per aggiungere un'immagine al carosello
+        function addImageToCarousel(url, urls) {
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'img-container';
+
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = 'Immagine';
+            img.setAttribute('data-urls', JSON.stringify(urls));
+            img.addEventListener('click', function() {
+                const urls = JSON.parse(this.getAttribute('data-urls'));
+                const newUrl = urls[Math.floor(Math.random() * urls.length)];
+                this.src = newUrl;
+            });
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'x';
+            deleteBtn.addEventListener('click', function() {
+                carousel.removeChild(imgContainer);
+            });
+
+            imgContainer.appendChild(img);
+            imgContainer.appendChild(deleteBtn);
+            carousel.appendChild(imgContainer);
+
+            // Scrolla il carosello all'ultima immagine
+            carousel.scrollLeft = carousel.scrollWidth;
+        }
+    </script>
+</body>
+</html>
