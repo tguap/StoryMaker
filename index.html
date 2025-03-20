@@ -48,10 +48,7 @@
             transition: transform 0.7s ease;
         }
 
-        /* Ingrandimento al passaggio del mouse */
-        .img-container:hover img {
-            transform: scale(1.5);
-        }
+      
 
         /* Stile per il pulsante di eliminazione */
         .img-container button {
@@ -68,11 +65,25 @@
             font-size: 14px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        /* Stile per il pulsante di eliminazione quando si passa sopra il contenitore */
-.img-container:hover button {
-    background: rgba(255, 0, 0, 0.01); /* Rosso con opacità 0.1 */
-    color: rgba(255,255,255,0.1);
+
+
+        @media (hover: hover) and (pointer: fine) {
+    .img-container:hover img {
+        transform: scale(1.5);
+    }
+    .img-container:hover button {
+        background: rgba(255, 0, 0, 0.01);
+        color: rgba(255, 255, 255, 0.1);
+    }
 }
+.img-container.double-click img {
+    transform: scale(1.5);
+}
+.img-container.double-click button {
+    background: rgba(255, 0, 0, 0.01);
+    color: rgba(255, 255, 255, 0.1);
+}
+        
     </style>
 </head>
 <body>
@@ -144,11 +155,36 @@ textarea.addEventListener('input', function(event) {
             img.src = url;
             img.alt = 'Immagine';
             img.setAttribute('data-urls', JSON.stringify(urls));
-            img.addEventListener('click', function() {
-                const urls = JSON.parse(this.getAttribute('data-urls'));
-                const newUrl = urls[Math.floor(Math.random() * urls.length)];
-                this.src = newUrl;
-            });
+            img.addEventListener('click', function(e) {
+        const urls = JSON.parse(this.getAttribute('data-urls'));
+
+        if (isTouchDevice) {
+            clickCount++;
+
+            if (clickCount === 1) {
+                // Set a timer to detect single vs double click
+                clickTimer = setTimeout(() => {
+                    // Single click: change image source
+                    const newUrl = urls[Math.floor(Math.random() * urls.length)];
+                    this.src = newUrl;
+                    clickCount = 0; // Reset counter
+                }, 300); // 300ms delay to detect double-click
+            } else if (clickCount === 2) {
+                // Double click: trigger scaling animation
+                clearTimeout(clickTimer); // Cancel single-click action
+                const container = this.parentElement;
+                container.classList.add('double-click');
+                setTimeout(() => {
+                    container.classList.remove('double-click');
+                }, 700); // Match the CSS transition duration
+                clickCount = 0; // Reset counter
+            }
+        } else {
+            // Desktop: single click changes image
+            const newUrl = urls[Math.floor(Math.random() * urls.length)];
+            this.src = newUrl;
+        }
+    });
 
             const deleteBtn = document.createElement('button');
             deleteBtn.textContent = 'x';
