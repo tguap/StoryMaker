@@ -105,16 +105,25 @@ const searchEngineId = urlParams.get('eng') || '';
 
         // Event listener per rilevare la digitazione di ]
         textarea.addEventListener('keyup', function(event) {
+         
             if (event.key === ']') {
-                processText();
-            }
+                processText(); 
+            } scroll();
         });
 textarea.addEventListener('input', function(event) {
+  
     const text = textarea.value;
     if (text.slice(-1) === ']') {
         processText();
-    }
+    }scroll();
 });
+
+function scroll(){
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth' // Opzionale: per uno scroll fluido
+});
+}
         // Funzione per processare il testo e trovare la stringa tra [ e ]
         function processText() {
             const text = textarea.value;
@@ -155,8 +164,12 @@ textarea.addEventListener('input', function(event) {
             img.src = url;
             img.alt = 'Immagine';
             img.setAttribute('data-urls', JSON.stringify(urls));
-            img.addEventListener('click', function(e) {
-        const urls = JSON.parse(this.getAttribute('data-urls'));
+            img.addEventListener('click', function() {
+             
+let clickCount = 0;
+    let clickTimer = null;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const urls = JSON.parse(this.getAttribute('data-urls'));
 
         if (isTouchDevice) {
             clickCount++;
@@ -183,7 +196,7 @@ textarea.addEventListener('input', function(event) {
             // Desktop: single click changes image
             const newUrl = urls[Math.floor(Math.random() * urls.length)];
             this.src = newUrl;
-        }
+        } scroll();
     });
 
             const deleteBtn = document.createElement('button');
